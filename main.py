@@ -4,6 +4,7 @@ from secrets import token_urlsafe
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import session, sessionmaker
+from sqlalchemy.exc import IntegrityError
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -44,12 +45,24 @@ async def ping():
     '''
     return "pong"
 
+@app.get('/already', response_class=HTMLResponse)
+async def already(request: Request):
+    '''
+    Already subscribed.
+    '''
+    return templates.TemplateResponse("already.html", {"request": request})
+
 @app.post("/subscribe")
 async def subscribe(email: str = Form(...)):
     key = token_urlsafe(50)
-    new_subscriber = Subscriber(email=email, key=key)
-    session.add(new_subscriber)
-    session.commit()
+    
+    try:
+        new_subscriber = Subscriber(email=email, key=key)
+        session.add(new_subscriber)
+        session.commit()
+    except IntegrityError:
+        return RedirectResponse('/already', 302)
+        
     return RedirectResponse('/confirmation', 302)
 
 @app.get("/confirm/{key}")
