@@ -1,5 +1,5 @@
 from sqlalchemy import String, Column, Integer
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
@@ -9,8 +9,11 @@ class Subscriber(Base):
 
     id = Column(Integer, primary_key=True)
     email = Column(String)
-    verified = Column(Integer)
+    verified = Column(Integer, default=0)
     key = Column(Integer)
+
+    def __repr__(self) -> str:
+        return f"<Subscriber({self.email})>"
 
 # API Keys for sending out mass requests
 class Keys(Base):
@@ -18,3 +21,6 @@ class Keys(Base):
 
     id = Column(Integer, primary_key=True)
     key = Column(String)
+
+    def __repr__(self) -> str:
+        return f"<Keys({self.id})>"
