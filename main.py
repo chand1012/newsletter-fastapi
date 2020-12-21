@@ -7,6 +7,7 @@ from sqlalchemy.orm import session, sessionmaker
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.responses import Response
 
 from database import Subscriber, Keys
 from api_models import MailSubscriber
@@ -16,7 +17,6 @@ db_url = os.environ.get("JAWSDB_URL")
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 session = Session()
-
 
 # FastAPI Setup
 app = FastAPI()
@@ -51,3 +51,12 @@ async def subscribe(email: str = Form(...)):
     session.add(new_subscriber)
     session.commit()
     return RedirectResponse('/confirmation', 302)
+
+@app.get("/confirm/{key}")
+async def confirm(request: Request, key: str):
+    sub = session.query(Subscriber).filter_by(key=key).first()
+    if sub is None:
+        return Response("404: User Not Found.", 404)
+    sub.verified = 1
+    session.commit()
+    return templates.TemplateResponse("confirm.html", {"request": request, "email": sub.email})
