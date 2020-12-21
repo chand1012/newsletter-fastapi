@@ -12,10 +12,9 @@ class Subscriber(Base):
     verified = Column(Integer)
     key = Column(Integer)
 
+# API Keys for sending out mass requests
+class Keys(Base):
+    __tablename__ = "api_keys"
 
-# class Keys(Base):
-#     __tablename__ = "api_keys"
-
-#     id = Column(Integer, primary_key=True)
-#     client_key = Column(String)
-#     email = Column(String)
+    id = Column(Integer, primary_key=True)
+    key = Column(String)
