@@ -1,13 +1,13 @@
 import os
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, From, Content
 
 def send_notification_email(subscriber_emails, subject, content):
     message = Mail(
-        from_email=os.environ.get('SENDGRID_FROM_EMAIL'),
+        from_email=From(email=os.environ.get('SENDGRID_SEND_EMAIL'), name="chand1012.dev Blog"),
         to_emails=subscriber_emails,
         subject=subject,
-        html_content=content
+        html_content=Content("text/html", content)
     )
 
     sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
@@ -22,14 +22,13 @@ def send_confirm_email(email, key):
         content = f.read()
 
     message = Mail(
-        from_email=os.environ.get('SENDGRID_API_KEY'),
-        to_emails=[email],
+        from_email=From(email=os.environ.get('SENDGRID_SEND_EMAIL'), name="chand1012.dev Blog"),
+        to_emails=email,
         subject='chand1012.dev Subscription Confirmation',
-        html_content=content.replace("{{key}}", key)
+        html_content=Content("text/html", content.replace("{{key}}", key))
     )
 
     sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
     resp = sg.send(message)
-    if resp.status_code != 200:
-        print(resp.body)
-        print(resp.headers)
+    print(resp.body)
+    print(resp.headers)
