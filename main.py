@@ -12,6 +12,7 @@ from starlette.responses import Response
 
 from database import Subscriber, Keys
 from api_models import MailSubscriber
+from mail import send_notification_email, send_confirm_email
 
 #Database Setup
 db_url = os.environ.get("JAWSDB_URL")
@@ -62,7 +63,8 @@ async def subscribe(email: str = Form(...)):
         session.commit()
     except IntegrityError:
         return RedirectResponse('/already', 302)
-        
+    
+    send_confirm_email(email, key)
     return RedirectResponse('/confirmation', 302)
 
 @app.get("/confirm/{key}")
