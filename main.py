@@ -10,7 +10,7 @@ from sqlalchemy.orm import session, sessionmaker
 from starlette.responses import Response
 
 from api_models import NewPost
-from database import Subscriber
+from database import get_subscribers, get_subscriber, query_subscriber, set_subscriber
 from mail import send_confirm_email, send_notification_email
 
 #Database Setup
@@ -54,35 +54,27 @@ async def already(request: Request):
 
 @app.post("/subscribe")
 async def subscribe(email: str = Form(...)):
-    key = token_urlsafe(50)
+    key = token_urlsafe(35)
     
-    try:
-        new_subscriber = Subscriber(email=email, key=key)
-        session.add(new_subscriber)
-        session.commit()
-    except IntegrityError as e:
-        print(e)
-        session.rollback()
+    sub = get_subscriber(email)
+
+    if not sub is None:
         return RedirectResponse('/already', 302)
-    
+
+    set_subscriber(email, key)
     send_confirm_email(email, key)
     return RedirectResponse('/confirmation', 302)
 
 @app.get("/confirm/{key}")
 async def confirm(request: Request, key: str):
-    sub = session.query(Subscriber).filter_by(key=key).first()
+    sub = query_subscriber(key)
     if sub is None:
-        return Response("404: User Not Found.", 404)
-    sub.verified = 1
-    session.commit()
-    return templates.TemplateResponse("confirm.html", {"request": request, "email": sub.email})
+        return Response('404: Error Not Found.', status_code=404)
+    set_subscriber(sub.get('key'), sub.get('confirm_key'), verified=True)
+    return templates.TemplateResponse("confirm.html", {"request": request, "email": sub.get('key')})
 
 @app.post("/new_post")
 async def new_post(post: NewPost):
-    subs = session.query(Subscriber).all()
-    emails = []
-    for sub in subs:
-        emails += [sub.email]
-    
+    emails = get_subscribers()
     send_notification_email(emails, post.title, post.body)
     return Response(content="{}", status_code=200)
