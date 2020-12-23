@@ -1,14 +1,31 @@
 import os
 from secrets import token_urlsafe
 
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, Security
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.security.api_key import APIKey, APIKeyHeader
 from fastapi.templating import Jinja2Templates
+from starlette.status import HTTP_403_FORBIDDEN
 
 from api_models import NewPost
-from database import get_subscribers, get_subscriber, query_subscriber, set_subscriber
+from database import (get_subscriber, get_subscribers, query_subscriber,
+                      set_subscriber)
 from mail import send_confirm_email, send_notification_email
 
+API_KEY = os.environ.get('API_KEY')
+API_KEY_NAME = "X-Api-Key"
+COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN')
+
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+
+    if api_key_header == API_KEY:
+        return api_key_header
+    else:
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Could not validate credentials"
+        )
 
 # FastAPI Setup
 app = FastAPI()
@@ -65,7 +82,7 @@ async def confirm(request: Request, key: str):
     return templates.TemplateResponse("confirm.html", {"request": request, "email": sub.get('key')})
 
 @app.post("/new_post")
-async def new_post(post: NewPost):
+async def new_post(post: NewPost, api_key: APIKey = Depends(get_api_key)):
     emails = get_subscribers()
     send_notification_email(emails, post.title, post.body)
     return Response(content="{}", status_code=200)
