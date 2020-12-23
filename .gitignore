@@ -154,5 +154,6 @@ dmypy.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
-test.sh
+test.*
 .deta
+settings.json
