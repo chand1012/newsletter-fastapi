@@ -4,20 +4,11 @@ from secrets import token_urlsafe
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import create_engine
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import session, sessionmaker
-from starlette.responses import Response
 
 from api_models import NewPost
 from database import get_subscribers, get_subscriber, query_subscriber, set_subscriber
 from mail import send_confirm_email, send_notification_email
 
-#Database Setup
-db_url = os.environ.get("JAWSDB_URL")
-engine = create_engine(db_url)
-Session = sessionmaker(bind=engine)
-session = Session()
 
 # FastAPI Setup
 app = FastAPI()
