@@ -39,6 +39,16 @@ def remove_sub(key):
     email = sub.get('key')
     return db.delete(email) is None
 
+def remove_all_unverified():
+    deta = Deta(os.environ.get('DETA_PROJECT_KEY'))
+    db = deta.Base("newsletter")
+    subs_gen = db.fetch({'verified': False}, pages=100, buffer=20)
+    subs = []
+    for sub_gen in subs_gen:
+        subs += sub_gen
+    for sub in subs:
+        db.delete(sub.get('key'))
+        
 if __name__=='__main__':
     import random
     import string
