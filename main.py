@@ -11,7 +11,6 @@ from api_models import NewPost
 from database import (get_subscriber, get_subscribers, query_subscriber,
                       set_subscriber)
 from mail import send_confirm_email, send_notification_email
-from content import *
 
 API_KEY = os.environ.get('API_KEY')
 API_KEY_NAME = "X-Api-Key"
@@ -38,14 +37,14 @@ async def index(request: Request):
     '''
     Index HTML Page
     '''
-    return templates.TemplateResponse("index.html", {"request": request, 'content': FORM})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get('/confirmation', response_class=HTMLResponse)
 async def confirm_please(request: Request):
     '''
     Please confirm request.
     '''
-    return templates.TemplateResponse("subscription.html", {"request": request, 'content': CONFIRMATION})
+    return templates.TemplateResponse("index.html", {"request": request, 'confirmation': True})
 
 @app.get("/ping")
 async def ping():
@@ -59,7 +58,7 @@ async def already(request: Request):
     '''
     Already subscribed.
     '''
-    return templates.TemplateResponse("already.html", {"request": request, 'content': ALREADY})
+    return templates.TemplateResponse("index.html", {"request": request, 'already': True})
 
 @app.post("/subscribe")
 async def subscribe(email: str = Form(...)):
@@ -80,7 +79,7 @@ async def confirm(request: Request, key: str):
     if sub is None:
         return Response('404: Error Not Found.', status_code=404)
     set_subscriber(sub.get('key'), sub.get('confirm_key'), verified=True)
-    return templates.TemplateResponse("confirm.html", {"request": request, "content": confirm_string(sub.get('key'))})
+    return templates.TemplateResponse("index.html", {"request": request, "email": sub.get('key')})
 
 @app.post("/new_post")
 async def new_post(post: NewPost, api_key: APIKey = Depends(get_api_key)):

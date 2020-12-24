@@ -31,15 +31,24 @@
             </header>
         </div>
     </div>
-
-    {{ content }}
+    <div class="container">
+        {% if email %}
+        {% include "success.html" %}
+        {% elif already %}
+        {% include "already.html" %}
+        {% elif confirmation %}
+        {% include "confirmation.html" %}
+        {% else %}
+        {% include "form.html" %}
+        {% endif %}
+    </div>
 
     <div class="wrapper-footer">
         <div class="container">
             <footer class="footer">
                 <a href="https://github.com/chand1012"><i class="svg-icon github"></i></a>
                 <a href="https://instagram.com/chand1012"><i class="svg-icon instagram"></i></a>
-                <a href="/feed.xml"><i class="svg-icon rss"></i></a>
+                <a href="https://chand1012.dev/feed.xml"><i class="svg-icon rss"></i></a>
                 <a href="https://www.twitter.com/Chand1012Dev"><i class="svg-icon twitter"></i></a>
                 <a href="https://youtube.com/channel/UCRKeF9dxhScFwB4VyOqxkhQ"><i class="svg-icon youtube"></i></a>
                 <a href="https://dev.to/chand1012">
