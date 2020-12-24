@@ -4,6 +4,7 @@
 <head>
     <title>chand1012.dev Newsletter</title>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://chand1012.dev/style.css" />
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://chand1012.dev/feed.xml" />
 
@@ -25,27 +26,13 @@
                     <a href="https://chand1012.dev/about">About</a>
                     <a href="https://chand1012.dev/sponsors">Sponsors</a>
                     <a href="https://chand1012.dev/games">Games</a>
+                    <a href="https://chand1012.dev/newsletter">Newsletter</a>
                 </nav>
             </header>
         </div>
     </div>
 
-    <div id="main" role="main" class="container">
-        <h1>Subscribe to my Newsletter!</h1>
-        <div class="entry">
-            Cancel at anytime!
-            <br>
-            <form action="/subscribe" method="POST">
-                <div>
-                    <label for="email"> Email </label>
-                    <input name="email" id="email" value="Email">
-                </div>
-                <div>
-                    <button>Submit</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    {{ content }}
 
     <div class="wrapper-footer">
         <div class="container">
