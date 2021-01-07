@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.status import HTTP_403_FORBIDDEN
 
 from api_models import NewPost
-from database import (get_subscriber, get_subscribers, query_subscriber,
+from database import (get_subscriber, get_subscribers, query_subscriber, remove_all_unverified,
                       set_subscriber)
 from mail import send_confirm_email, send_notification_email
 
@@ -85,4 +85,9 @@ async def confirm(request: Request, key: str):
 async def new_post(post: NewPost, api_key: APIKey = Depends(get_api_key)):
     emails = get_subscribers()
     send_notification_email(emails, post.title, post.body)
+    return Response(content="{}", status_code=200)
+
+@app.get("/clear_stale")
+async def clear_stale(api_key: APIKey = Depends(get_api_key)):
+    remove_all_unverified()
     return Response(content="{}", status_code=200)
