@@ -10,7 +10,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 from api_models import NewPost
 from database import (get_subscriber, get_subscribers, query_subscriber, remove_all_unverified,
                       set_subscriber)
-from mail import send_confirm_email, send_notification_email
+from mail import check, send_confirm_email, send_notification_email
 
 API_KEY = os.environ.get('API_KEY')
 API_KEY_NAME = "X-Api-Key"
@@ -60,10 +60,22 @@ async def already(request: Request):
     '''
     return templates.TemplateResponse("index.html", {"request": request, 'already': True})
 
+@app.get('/invalid', response_class=HTMLResponse)
+async def invalid(request: Request):
+    '''
+    Invalid Email.
+    '''
+    return templates.TemplateResponse("index.html", {"request": request, "invalid": True})
+
 @app.post("/subscribe")
 async def subscribe(email: str = Form(...)):
     key = token_urlsafe(35)
     
+    valid = check(email)
+
+    if not valid:
+        return RedirectResponse('/invalid', 302)
+
     sub = get_subscriber(email)
 
     if not sub is None:
@@ -89,5 +101,8 @@ async def new_post(post: NewPost, api_key: APIKey = Depends(get_api_key)):
 
 @app.get("/clear_stale")
 async def clear_stale(api_key: APIKey = Depends(get_api_key)):
+    '''
+    Clears all unverified emails from the database.
+    '''
     remove_all_unverified()
     return Response(content="{}", status_code=200)

@@ -38,6 +38,8 @@
         {% include "already.html" %}
         {% elif confirmation %}
         {% include "confirmation.html" %}
+        {% elif invalid %}
+        {% include "already.html" %}
         {% else %}
         {% include "form.html" %}
         {% endif %}

@@ -1,6 +1,16 @@
 import os
+import re
+
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, From, Content
+from sendgrid.helpers.mail import Content, From, Mail
+
+regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+
+def check(email):    
+    if(re.search(regex,email)):  
+        return True            
+    else:  
+        return False
 
 def send_notification_email(subscribers, subject, content):
     if len(subscribers) == 0:
